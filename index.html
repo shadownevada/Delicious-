@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Samosa Packs</title>
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#fff9ed,#1b1511);--card:light-dark(#fff,#2a211b);--text:light-dark(#321b0f,#fff5e8);--accent:#9b5a22;--gold:#e3ad4d;--muted:light-dark(#765f51,#d5c0ad)}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+#app{min-height:100vh;background:var(--bg);padding:28px 18px}.wrap{max-width:980px;margin:auto}.hero{text-align:center;padding:24px 0 22px}.logo{font-size:62px}.hero h1{font-family:Georgia,serif;font-size:43px;margin:5px 0}.hero p{color:var(--muted);font-size:17px}
+.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:var(--card);border:2px solid transparent;border-radius:24px;padding:24px;box-shadow:0 10px 30px #00000015;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-3px)}.card.selected{border-color:var(--gold);box-shadow:0 0 0 4px #e3ad4d25}.emoji{font-size:42px}.card h2{margin:8px 0}.price{font-size:28px;font-weight:800;color:var(--accent)}ul{padding-left:20px;color:var(--muted);line-height:1.8}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{border:0;border-radius:15px;background:var(--accent);color:white;font-weight:800;font-size:17px;padding:15px 22px;cursor:pointer;width:100%;margin-top:22px}.btn.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}.btn:disabled{opacity:.45;cursor:not-allowed}.screen{display:none}.screen.active{display:block}.summary{max-width:650px;margin:30px auto;background:var(--card);padding:30px;border-radius:24px;text-align:center}.order{font-size:48px;font-weight:900;color:var(--accent);letter-spacing:3px}.number{font-size:30px;font-weight:900;margin:15px 0}.whatsapp{display:block;text-decoration:none;background:#25d366;color:#071b0d;border-radius:15px;padding:15px 22px;font-weight:900;font-size:17px;margin-top:18px}.note{background:#e3ad4d20;padding:14px;border-radius:14px;text-align:left;margin:18px 0;color:var(--text)}label{display:block;text-align:left;font-weight:800;margin:14px 0;color:var(--text)}input,textarea{width:100%;margin-top:7px;border:1px solid #0002;border-radius:12px;padding:13px;font:inherit;background:var(--bg);color:var(--text)}textarea{min-height:90px;resize:vertical}.back{background:transparent;color:var(--muted);border:0;cursor:pointer;margin-top:14px}.success{font-size:40px;margin-bottom:5px}
+@media(max-width:700px){.packs{grid-template-columns:1fr}.hero h1{font-size:34px}.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main id="app"><div class="wrap">
+<section id="menu" class="screen active">
+<div class="hero"><div class="logo">🥟</div><h1>Samosa House</h1><p>Fresh, crispy homemade samosas — choose your pack ✨</p></div>
+<div class="packs" id="packs"></div>
+<div class="actions"><button id="checkout" class="btn" disabled>🛒 Checkout</button><button id="place" class="btn secondary" disabled>Quick Place Order →</button></div>
+</section>
+<section id="checkoutScreen" class="screen">
+<div class="summary">
+<div class="success">🛒</div><h1>Checkout</h1>
+<div class="note" id="checkoutDetails"></div>
+<label>Name<br><input id="customerName" placeholder="Your name" autocomplete="name"></label>
+<label>Extra notes (optional)<br><textarea id="customerNotes" placeholder="e.g. Please make them mild"></textarea></label>
+<button class="btn" id="checkoutPlace">Continue to Payment →</button>
+<button class="back" id="checkoutBack">← Back to menu</button>
+</div>
+</section>
+<section id="paymentScreen" class="screen">
+<div class="summary">
+<div class="success">💳</div><h1>Payment</h1>
+<div class="note"><b>DEMO PAYMENT ONLY</b><br>This is a pretend payment screen for the website. No money will be charged and no card details are sent anywhere.</div>
+<div class="note" id="paymentDetails"></div>
+<label>Cardholder name<br><input id="cardName" placeholder="Demo Customer" autocomplete="off"></label>
+<label>Card number<br><input id="cardNumber" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" autocomplete="off"></label>
+<div class="actions"><label>Expiry date<br><input id="expiry" placeholder="MM/YY" maxlength="5" autocomplete="off"></label><label>CVV<br><input id="cvv" inputmode="numeric" maxlength="4" placeholder="123" autocomplete="off"></label></div>
+<button class="btn" id="payDemo">💳 Pay R0.00 (Demo)</button>
+<button class="back" id="paymentBack">← Back to checkout</button>
+</div>
+</section>
+<section id="confirm" class="screen">
+<div class="summary">
+<div class="success">🎉</div><h1>Order number created!</h1>
+<p>Your order number is:</p><div class="order" id="orderNo"></div>
+<div class="note" id="details"></div>
+<h3>Send your order to us on WhatsApp</h3>
+<div class="number">073 935 5460</div>
+<a id="whatsapp" class="whatsapp" target="_blank" rel="noopener">💬 Send order on WhatsApp</a>
+<div class="note">📱 Tapping the button opens WhatsApp with the order number and exactly what the customer ordered already typed in. The customer just taps <b>Send</b> to send it to us.</div>
+<button class="btn" id="again">Order another pack</button>
+<button class="back" id="back">← Back to menu</button>
+</div>
+</section>
+</div></main>
+<script>
+const packs=[
+ {id:'six',name:'Six-Pack',count:6,price:'R90',desc:'6 crispy samosas — perfect for a small snack',flavour:'Classic mince & cheese mix'},
+ {id:'twelve',name:'Twelve-Pack',count:12,price:'R165',desc:'12 crispy samosas — great for sharing',flavour:'Classic mince & cheese mix'},
+ {id:'party',name:'Party Pack',count:32,price:'R420',desc:'32 crispy samosas — made for parties',flavour:'Classic mince, cheese & spicy mix'}
+];
+let selected=null, currentOrder=null;
+const el=id=>document.getElementById(id);
+const container=el('packs');
+packs.forEach(p=>{const d=document.createElement('article');d.className='card';d.innerHTML=`<div class="emoji">🥟</div><h2>${p.name}</h2><div class="price">${p.price}</div><ul><li>${p.count} samosas</li><li>${p.desc}</li><li>${p.flavour}</li></ul>`;d.onclick=()=>{selected=p;document.querySelectorAll('.card').forEach(x=>x.classList.remove('selected'));d.classList.add('selected');el('place').disabled=false;el('checkout').disabled=false};container.appendChild(d)});
+function newOrder(){return 'SAM-'+Math.floor(100000+Math.random()*900000)}
+function showOrder(){
+ currentOrder=newOrder();el('orderNo').textContent=currentOrder;
+ el('details').innerHTML=`<b>Order:</b> ${selected.name}<br><b>Quantity:</b> ${selected.count} samosas<br><b>Price:</b> ${selected.price}`;
+ const customer=el('customerName').value.trim(); const notes=el('customerNotes').value.trim();
+ const message=`Hello! I would like to place an order.\n\nOrder number: ${currentOrder}\nName: ${customer||'Not provided'}\nPack: ${selected.name}\nQuantity: ${selected.count} samosas\nPrice: ${selected.price}${notes?`\nNotes: ${notes}`:''}`;
+ el('whatsapp').href=`https://wa.me/27739355460?text=${encodeURIComponent(message)}`;
+ el('menu').classList.remove('active');el('confirm').classList.add('active');
+}
+el('place').onclick=()=>{if(selected)showOrder()};
+el('checkout').onclick=()=>{if(!selected)return; el('checkoutDetails').innerHTML=`<b>${selected.name}</b><br>${selected.count} samosas<br><strong>${selected.price}</strong>`; el('menu').classList.remove('active');el('checkoutScreen').classList.add('active')};
+el('checkoutBack').onclick=()=>{el('checkoutScreen').classList.remove('active');el('menu').classList.add('active')};
+el('checkoutPlace').onclick=()=>{if(!selected)return; el('paymentDetails').innerHTML=`<b>${selected.name}</b><br>${selected.count} samosas<br><strong>Total: ${selected.price}</strong>`; el('checkoutScreen').classList.remove('active');el('paymentScreen').classList.add('active')};
+el('paymentBack').onclick=()=>{el('paymentScreen').classList.remove('active');el('checkoutScreen').classList.add('active')};
+el('payDemo').onclick=()=>{if(!selected)return; showOrder()};
+function reset(){el('confirm').classList.remove('active');el('paymentScreen').classList.remove('active');el('checkoutScreen').classList.remove('active');el('menu').classList.add('active');selected=null;document.querySelectorAll('.card').forEach(x=>x.classList.remove('selected'));el('place').disabled=true;el('checkout').disabled=true;el('customerName').value='';el('customerNotes').value=''}
+el('again').onclick=reset;el('back').onclick=reset;
+</script>
+</body></html>
